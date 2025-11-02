@@ -1,19 +1,49 @@
-# Block Class Definition #
+@dataclass(frozen=True)
+class Vec:
+    x: int
+    y: int
+    def __add__(self, other: "Vec") -> "Vec":
+        return Vec(self.x + other.x, self.y + other.y)
+    def tup(self) -> Tuple[int,int]:
+        return (self.x, self.y)
 
-# Defines the "block" class
+class Block:
+    kind: str
+    def interact(self, pos, dir, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+        raise NotImplementedError
 
-# Placeholder file for organization purposes
+class ReflectBlock(Block):
+    """
+    A: reflect lazor at 90°.
+        - vertical block face (even x, odd y): flip vx  -> (−vx,  vy)
+        - horizontal block face  (odd x, even y): flip vy -> ( vx, −vy)
+    """
+    kind = 'A'
+    def interact(self, pos: Vec, dir: Vec, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+        vx,vy = dir.x, dir.y
+        if vert_edge:
+            return [(pos, Vec(-vx, vy))]
+        else:
+            return [(pos, Vec(vx, -vy))]
 
-class Block: 
-    def __init__(self, block_type, x, y): #block_type can be "A", "B", or "C"
-        self.type = block_type
-        self.x = x #Position of the block ON X axis
-        self.y = y #Position of the block ON Y axis
+class OpaqueBlock(Block):
+    """
+        B: absorbs beam.
+    """
+    kind = 'B'
+    def interact(self, pos: Vec, dir: Vec, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+        return []
 
-    def interact(self, vx, vy):
-        if self.type == "A":  #Need to Reflect
-            return -vx, vy
-        elif self.type == "B":  #Need to Absorb
-            return None
-        elif self.type == "C":  #Need to Reflect + Pass
-            return [(-vx, vy), (vx, vy)]  #First reflect, then pass throuh
+class RefractBlock(Block):
+    """
+        C: refracts lazor, allows lazor to pass through and reflects at 90° like ReflectBlock class
+    """
+    kind = 'C'
+    def interact(self, pos: Vec, dir: Vec, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+        vx, vy = dir.x, dir.y
+        if vert_edge:
+            return [(pos,dir),(pos, Vec(-vx, vy))]
+        else:
+            return [(pos,dir),(pos, Vec(vx, -vy))]
+
+BLOCKS: Dict[str, Block] = { 'A': ReflectBlock(), 'B': OpaqueBlock(), 'C': RefractBlock(),}
