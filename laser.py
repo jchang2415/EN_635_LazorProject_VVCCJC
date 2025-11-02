@@ -46,7 +46,7 @@ def laser_path(board):
         visited_states = set()
 
         # Extrapolate path of lazer until it leaves the board or is absorbed
-        while 0 <= x <= (cols*2) and 0 <= y <= (rows*2):
+        while 0 <= x < (cols*2) and 0 <= y < (rows*2):
 
             # Add current (x,y) coordinates to "hit_path"
             hit_path.add((x, y))
@@ -67,7 +67,7 @@ def laser_path(board):
             y_new = y + vy
 
             # Check that the laser is still inside the grid
-            if not (0 <= x <= (cols*2) and 0 <= y <= (rows*2)):
+            if not (0 <= x < (cols*2) and 0 <= y < (rows*2)):
 
                 # If the laser has left the grid, break the loop and move onto the next laser
                 break
@@ -102,12 +102,13 @@ def laser_path(board):
 
                     # Refract type block
                     elif type == "C":
+                        
+                        # Create a new lazor originating from that point with the same (unreflected) state
+                        lasers.append((x_new, y_new, vx, vy))
 
                         # Reflect original lazer
                         vy = -vy
 
-                        # Create a new lazor originating from that point with the same (unreflected) state
-                        lasers.append(state)
 
                 # Check to see if the laser is hitting the block on the left or right sides
                 elif (x_new, y_new) == (x_block + 1, y_block) or (x_new, y_new) == (x_block - 1, y_block):
@@ -132,11 +133,11 @@ def laser_path(board):
                     # Refract type block
                     elif type == "C":
 
+                        # Create a new lazor originating from that point with the same (unreflected) state
+                        lasers.append((x_new, y_new, vx, vy))
+                        
                         # Reflect original lazer
                         vx = -vx
-
-                        # Create a new lazor originating from that point with the same (unreflected) state
-                        lasers.append(state)
 
                 # Otherwise if it doesn't hit the block, do nothing and move onto the next block
                 else:
@@ -151,3 +152,4 @@ def laser_path(board):
 
     # Return all calculated paths
     return all_paths
+
