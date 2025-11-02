@@ -1,7 +1,54 @@
-# Lazer Simulation #
+# Laser Simulation #
 '''
 Defines a function for simulating the path of a laser for a given board configuration.
 '''
+
+def hit_block(blocks, x_laser, y_laser):
+    '''
+    Helper function that checks if a laser position would hit a block + returns the type of block hit as well as the edge (horizontal or vertical) that was hit.
+
+    If no block would be hit, returns None, None.
+
+    Assumes input of a "blocks" dictionary that has the (x, y) of the center of the block as keys and the type of the block as the value.
+
+    **Arguments**
+
+        blocks: *dict[tuple, str]*
+            A dictionary of the blocks
+
+        x_laser: *int*
+            X-coordinate of the laser position.
+
+        y_laser: *int*
+            Y-coordinate of the laser position.
+
+    **Returns**
+
+        b_type: *str*
+            A string "A", "B", or "C" that tells you the type of block that was hit by the provided laser.
+
+        orientation: *str*
+            A string "vertical" or "horizontal" that tells you the orientation of edge that was hit on the block.
+
+    '''
+    edges = [
+         (-1, 0, "vertical"),
+         (1, 0, "vertical"),
+         (0, -1, "horizontal"),
+         (0, 1, "horizontal")
+    ]
+
+    for dx, dy, orientation in edges:
+
+        edge = (x_laser + dx, y_laser + dy)
+
+        if edge in blocks:
+
+            b_type = blocks[edge]
+
+            return b_type, orientation
+
+    return None, None 
 
 def laser_path(board):
     '''
@@ -25,7 +72,7 @@ def laser_path(board):
     rows, cols = board.size()
 
     # Obtain list of lasers for the board
-    lasers = board.lasers
+    lasers = [board.lasers]
 
     # Obtain list of block positions for the board   ### NOT YET IN BFF PARSER FILE! Need to add? Or is this logic wrong; should this instead be a 2nd argument?
     blocks = board.blocks
@@ -33,11 +80,11 @@ def laser_path(board):
     # Initialize empty variable to hold all hit paths calculated
     all_paths = []
 
-    # Iterate over all the lasers for the board
-    for laser in lasers:
+    # While the queue of lasers to process is still not empty
+    while lasers:
 
-        # Sort information from the laser
-        x, y, vx, vy = laser
+        # Pop off the next laser + sort information from the laser
+        x, y, vx, vy = lasers.pop(0)
         
         # Initialize empty set to hold the points the laser hits
         hit_path = set()
@@ -67,82 +114,45 @@ def laser_path(board):
             y_new = y + vy
 
             # Check that the laser is still inside the grid
-            if not (0 <= x < (cols*2) and 0 <= y < (rows*2)):
+            if not (0 <= x_new < (cols*2) and 0 <= y_new < (rows*2)):
 
                 # If the laser has left the grid, break the loop and move onto the next laser
                 break
 
-            # Check to see if the laser intersects a block;  ASSUMING FOR NOW WE HAVE LIST OF BLOCK TYPES AND COORDINATES (in form (type, x, y))
-            
-            # Iterate through all blocks     <-- MAYBE NOT EFFICIENT
-            for block in blocks:
+            # Check to see if the laser intersects a block;  USING DICTIONARY FOR BLOCKS NOW FOR BETTER SEARCH EFFICIENCY
 
-                # Obtain block type and position
-                type, x_block, y_block = block
+            # Check to see if the laser hits a block + get block type and hit orientation if so
+            b_type, orientation = hit_block(blocks, x_new, y_new)
 
-                # Check to see if the laser is hitting the block on the top or bottom sides
-                if (x_new, y_new) == (x_block, y_block + 1) or (x_new, y_new) == (x_block, y_block - 1):
+            # If type is not none, then the laser hits a block
+            if b_type:
 
-                    # Check block type and proceed accordingly
+                # If the block type is B
+                if b_type == "B":
 
-                    # Reflect type block
-                    if type == "A":
+                    # Do nothing and break the loop so that the laser doesn't progress further (is absorbed)
+                    break
 
-                        # If it hits, reflect the path of the laser accordingly (flip vy)
-                        vy = -vy
-
-                        # Break the for loop cause it can't hit any other blocks
-                        break
-
-                    # Opaque type block
-                    elif type == "B":
-
-                        # Absorb laser and stop loop
-                        break
-
-                    # Refract type block
-                    elif type == "C":
-                        
-                        # Create a new lazor originating from that point with the same (unreflected) state
-                        lasers.append((x_new, y_new, vx, vy))
-
-                        # Reflect original lazer
-                        vy = -vy
-
-
-                # Check to see if the laser is hitting the block on the left or right sides
-                elif (x_new, y_new) == (x_block + 1, y_block) or (x_new, y_new) == (x_block - 1, y_block):
-
-                    # Check block type and proceed accordingly
-
-                    # Reflect type block
-                    if type == "A":
-
-                        # If it hits, reflect the path of the laser accordingly (flip vx)
-                        vx = -vx
-
-                        # Break the for loop cause it can't hit any other blocks
-                        break
-
-                    # Opaque type block
-                    elif type == "B":
-
-                        # Absorb laser and stop loop
-                        break
-
-                    # Refract type block
-                    elif type == "C":
-
-                        # Create a new lazor originating from that point with the same (unreflected) state
-                        lasers.append((x_new, y_new, vx, vy))
-                        
-                        # Reflect original lazer
-                        vx = -vx
-
-                # Otherwise if it doesn't hit the block, do nothing and move onto the next block
+                # Otherwise the block is either A or C so proceed accordingly
                 else:
+                    
+                    # Check to see if the block is type C
+                    if b_type == "C":
 
-                    next
+                        # Create a new lazor originating from that point with the same (unreflected) state
+                        lasers.append((x_new, y_new, vx, vy))
+
+                    # If the block hits a horizontal edge,
+                    if orientation == "horizontal":
+
+                        # Reflect it accordingly
+                        vy = -vy
+
+                    # Or else it must hit vertical
+                    else:
+
+                        # Reflect it accordingly
+                        vx = -vx
 
             # Advance the laser to the next position
             x, y = x_new, y_new
@@ -152,4 +162,6 @@ def laser_path(board):
 
     # Return all calculated paths
     return all_paths
+    return all_paths
+
 
