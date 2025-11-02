@@ -1,4 +1,4 @@
-# do we need to know the grid is rectangular? or check for it?
+# do we need to know the grid is rectangular? or check for it?    <- I don't think so, cause the games dimensions are set as far as I'm aware so it will always be square?
 class Board(object):
     """
     Wrapper for a parsed .bff file.
