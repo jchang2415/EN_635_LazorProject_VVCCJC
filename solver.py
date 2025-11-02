@@ -1,11 +1,9 @@
 # Solver Code #
 
-# Defines a code for solving a Lazor problem
-
-# Empty placeholder file for organization
-
-#Define the core logic that attempts to find a valid configuration of movable blocks to solve a given Lazor board.
-#Uses the bff.py(Board + parse_bff) & laser.py(laser_path simulation) modules.
+'''
+Define the core logic that attempts to find a valid configuration of movable blocks to solve a given Lazor board.
+Uses the bff.py(Board + parse_bff) & laser.py(laser_path simulation) modules.
+'''
 
 from itertools import product
 from copy import deepcopy
@@ -154,3 +152,4 @@ def solve(board):
 
     print("❌ No valid solution found.") #Notify user
     return None
+
