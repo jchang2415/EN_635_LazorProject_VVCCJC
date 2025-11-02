@@ -30,7 +30,7 @@ def check_solution(hit_paths, target_points):
     return all(point in all_hits for point in target_points)
 
 
-def get_open_slots(board):
+def get_open_slots(board):        # Doesn't seem like a function is necessary here; only use it once and the function is just one line of code - Jason
     """
     Return all coordinates (r, c) where movable blocks can be placed.
     """
@@ -152,4 +152,5 @@ def solve(board):
 
     print("❌ No valid solution found.") #Notify user
     return None
+
 
