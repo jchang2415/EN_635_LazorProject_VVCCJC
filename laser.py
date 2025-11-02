@@ -83,20 +83,60 @@ def laser_path(board):
                 # Check to see if the laser is hitting the block on the top or bottom sides
                 if (x_new, y_new) == (x_block, y_block + 1) or (x_new, y_new) == (x_block, y_block - 1):
 
-                    # If it hits, reflect the path of the laser accordingly (flip vy)
-                    vy = -vy
+                    # Check block type and proceed accordingly
 
-                    # Break the for loop cause it can't hit any other blocks
-                    break
+                    # Reflect type block
+                    if type == "A":
+
+                        # If it hits, reflect the path of the laser accordingly (flip vy)
+                        vy = -vy
+
+                        # Break the for loop cause it can't hit any other blocks
+                        break
+
+                    # Opaque type block
+                    elif type == "B":
+
+                        # Absorb laser and stop loop
+                        break
+
+                    # Refract type block
+                    elif type == "C":
+
+                        # Reflect original lazer
+                        vy = -vy
+
+                        # Create a new lazor originating from that point with the same (unreflected) state
+                        lasers.append(state)
 
                 # Check to see if the laser is hitting the block on the left or right sides
                 elif (x_new, y_new) == (x_block + 1, y_block) or (x_new, y_new) == (x_block - 1, y_block):
 
-                    # If it hits, reflect the path of the laser accordingly (flip vx)
-                    vx = -vx
+                    # Check block type and proceed accordingly
 
-                    # Break the for loop cause it can't hit any other blocks
-                    break
+                    # Reflect type block
+                    if type == "A":
+
+                        # If it hits, reflect the path of the laser accordingly (flip vx)
+                        vx = -vx
+
+                        # Break the for loop cause it can't hit any other blocks
+                        break
+
+                    # Opaque type block
+                    elif type == "B":
+
+                        # Absorb laser and stop loop
+                        break
+
+                    # Refract type block
+                    elif type == "C":
+
+                        # Reflect original lazer
+                        vx = -vx
+
+                        # Create a new lazor originating from that point with the same (unreflected) state
+                        lasers.append(state)
 
                 # Otherwise if it doesn't hit the block, do nothing and move onto the next block
                 else:
@@ -111,14 +151,3 @@ def laser_path(board):
 
     # Return all calculated paths
     return all_paths
-
-
-
-
-# Pseudo code for hitting blocks
-# Check if the path of the laser comes within the position of the block +-1 in either the x or y directions (cause that's where the edges of the block are)
-# If it hits the point +-1 y of the block position, vx = vx and vy = -vy
-# If it hits the point +-1 x of the block position, vx = -vx and vy = vy
-
-
-
