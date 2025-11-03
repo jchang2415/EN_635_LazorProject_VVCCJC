@@ -7,7 +7,7 @@ Uses the bff.py(Board + parse_bff) & laser.py(laser_path simulation) modules.
 
 from itertools import combinations, combinations_with_replacement
 from copy import deepcopy
-from laser import laser_path
+from laser_test import laser_path
 
 
 def check_solution(hit_paths, target_points):
@@ -160,6 +160,7 @@ def solve(board):
 
     print("❌ No valid solution found.") #Notify user
     return None
+
 
 
 
