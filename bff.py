@@ -12,7 +12,7 @@ class Board(object):
 
     def __init__(self, grid, movable_blocks, lasers, targets):
         self.grid = grid
-        self.movable_blocks = movable_blocks
+        self.movable_counts = movable_blocks
         self.lasers = lasers
         self.targets = targets
 
