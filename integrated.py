@@ -190,3 +190,111 @@ BLOCKS: Dict[str, Block] = {
     'B': OpaqueBlock(),
     'C': RefractBlock(),
 }
+
+
+# === Laser simulation integrated with Block classes ===
+from collections import deque
+from typing import Dict, Tuple, List, Set
+
+Vec = Tuple[int, int]
+
+def _is_inside_expan(board: "Board", p: Vec) -> bool:
+    x, y = p
+    h, w = len(board.expan_grid), len(board.expan_grid[0])
+    return 0 <= x < w and 0 <= y < h
+
+def _is_edge(p: Vec) -> Tuple[bool, bool]:
+    """Return (is_edge, is_vertical_edge) based on half-grid parity.
+    Edge iff exactly one coord is odd. If x is odd and y is even => vertical edge.
+    """
+    x, y = p
+    is_edge = (x % 2) != (y % 2)
+    vert = (x % 2 == 1 and y % 2 == 0)
+    return is_edge, vert
+
+def _adjacent_center(p: Vec) -> Vec:
+    """Map an edge coordinate to the adjacent block center coordinate (half-grid)."""
+    x, y = p
+    if x % 2 == 1 and y % 2 == 0:   # vertical edge -> center is (x, y+1) or (x, y-1); choose integer center next step along y? We use the nearest odd y
+        return (x, y+1) if (y+1) % 2 == 1 else (x, y-1)
+    elif x % 2 == 0 and y % 2 == 1: # horizontal edge
+        return (x+1, y) if (x+1) % 2 == 1 else (x-1, y)
+    else:
+        return (x, y)
+
+def build_block_instances(board: "Board", placements: Dict[Tuple[int,int], str]) -> Dict[Tuple[int,int], "Block"]:
+    """Return dict mapping block-center (half-grid coords) -> Block instance.
+    - Include fixed blocks in board.grid (A/B/C).
+    - Include movable placements on 'o' cells provided in placements as letters.
+    """
+    blocks: Dict[Tuple[int,int], "Block"] = {}
+    rows, cols = len(board.grid), len(board.grid[0])
+    for r in range(rows):
+        for c in range(cols):
+            ch = board.grid[r][c]
+            if ch in "ABC":
+                center = (2*c+1, 2*r+1)
+                blocks[center] = BLOCKS[ch]
+    for (c, r), ch in placements.items():
+        if ch in "ABC":
+            center = (2*c+1, 2*r+1)
+            blocks[center] = BLOCKS[ch]
+    return blocks
+
+def laser_paths(board: "Board", placements: Dict[Tuple[int,int], str], max_steps: int = 10000) -> List[List[Vec]]:
+    """Trace all lasers on the expanded grid using Block classes.
+    Returns a list of polyline paths (list of positions) for each originating laser ray,
+    including branches from refract blocks.
+    """
+    block_map = build_block_instances(board, placements)
+    all_paths: List[List[Vec]] = []
+    # Each entry: (current position, direction, path_so_far)
+    q: deque[Tuple[Vec, Vec, List[Vec]]] = deque()
+
+    # Seed with the starting lasers
+    for (x, y, vx, vy) in board.lasers:
+        q.append(((x, y), (vx, vy), [(x, y)]))
+
+    steps = 0
+    visited: Set[Tuple[Vec, Vec]] = set()
+    while q and steps < max_steps:
+        pos, d, path = q.popleft()
+        steps += 1
+        # advance one half-grid step
+        nxt = (pos[0] + d[0], pos[1] + d[1])
+
+        if not _is_inside_expan(board, nxt):
+            # Ray leaves board; finalize this path
+            all_paths.append(path + [nxt])
+            continue
+
+        is_edge, vertical_edge = _is_edge(nxt)
+        if is_edge:
+            center = _adjacent_center(nxt)
+            blk = block_map.get(center)
+            if blk is not None:
+                # interact; may branch
+                outcomes = blk.interact(nxt, d, vertical_edge)
+                # For opaque, interact returns empty list; we end path at impact point
+                if not outcomes:
+                    all_paths.append(path + [nxt])
+                    continue
+                # For each outcome, enqueue continuation starting at the same edge/impact point
+                for p_out, d_out in outcomes:
+                    state = (p_out, d_out)
+                    if (state) in visited:
+                        continue
+                    visited.add(state)
+                    q.append((p_out, d_out, path + [p_out]))
+                # We already enqueued branches; continue loop
+                continue
+
+        # No block interaction; just continue straight
+        q.append((nxt, d, path + [nxt]))
+
+    # If queue drained or hit step limit, push any unfinished paths
+    while q:
+        pos, d, path = q.popleft()
+        all_paths.append(path)
+
+    return all_paths
