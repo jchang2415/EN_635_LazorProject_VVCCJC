@@ -1,15 +1,6 @@
-@dataclass(frozen=True)
-class Vec:
-    x: int
-    y: int
-    def __add__(self, other: "Vec") -> "Vec":
-        return Vec(self.x + other.x, self.y + other.y)
-    def tup(self) -> Tuple[int,int]:
-        return (self.x, self.y)
-
 class Block:
     kind: str
-    def interact(self, pos, dir, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+    def interact(self, pos, dir, vert_edge: bool):
         raise NotImplementedError
 
 class ReflectBlock(Block):
@@ -19,19 +10,20 @@ class ReflectBlock(Block):
         - horizontal block face  (odd x, even y): flip vy -> ( vx, −vy)
     """
     kind = 'A'
-    def interact(self, pos: Vec, dir: Vec, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+    def interact(self, pos, dir, vert_edge: bool):
         vx,vy = dir.x, dir.y
         if vert_edge:
-            return [(pos, Vec(-vx, vy))]
+            return [(pos, (-vx, vy))]
         else:
-            return [(pos, Vec(vx, -vy))]
+            return [(pos, (vx, -vy))]
 
 class OpaqueBlock(Block):
     """
         B: absorbs beam.
     """
     kind = 'B'
-    def interact(self, pos: Vec, dir: Vec, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+
+    def interact(self, pos, dir, vert_edge: bool):
         return []
 
 class RefractBlock(Block):
@@ -39,11 +31,11 @@ class RefractBlock(Block):
         C: refracts lazor, allows lazor to pass through and reflects at 90° like ReflectBlock class
     """
     kind = 'C'
-    def interact(self, pos: Vec, dir: Vec, vert_edge: bool) -> List[Tuple[Vec, Vec]]:
+    def interact(self, pos, dir, vert_edge: bool):
         vx, vy = dir.x, dir.y
         if vert_edge:
-            return [(pos,dir),(pos, Vec(-vx, vy))]
+            return [(pos,dir),(pos,(-vx, vy))]
         else:
-            return [(pos,dir),(pos, Vec(vx, -vy))]
+            return [(pos,dir),(pos,(vx, -vy))]
 
 BLOCKS: Dict[str, Block] = { 'A': ReflectBlock(), 'B': OpaqueBlock(), 'C': RefractBlock(),}
