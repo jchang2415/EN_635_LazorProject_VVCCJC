@@ -1,26 +1,22 @@
-# Laser Simulation #
+# Laser Simulation (integrated with blocks.Block) #
 """
-Simulate lazor paths over a half-grid board using block interaction rules
-defined in blocks (2).py (BLOCKS registry). This module exports a single
-function: laser_path(board) -> list[set[(int,int)]].
+Simulate lazor paths over a half-grid board using the interaction rules
+encapsulated in :mod:`blocks` Block classes. This module exports a single
+function:
+
+    laser_path(board) -> list[set[(int, int)]]
 """
-from typing import Dict, Tuple, List, Set
-# Prefer a normal module import; if unavailable, fall back to a local filename with spaces.
-try:
-    from blocks import BLOCKS  # Uses ReflectBlock/OpaqueBlock/RefractBlock via .interact
-except Exception:  # pragma: no cover - fallback for filenames like 'blocks (2).py'
-    import importlib.util, pathlib, types
-    _bp = pathlib.Path(__file__).with_name("blocks (2).py")
-    spec = importlib.util.spec_from_file_location("blocks2", str(_bp))
-    _mod = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader, "Unable to load blocks (2).py"
-    spec.loader.exec_module(_mod)  # type: ignore[attr-defined]
-    BLOCKS = getattr(_mod, "BLOCKS")
+from __future__ import annotations
+
+from typing import Dict, Tuple, List, Set, Optional, Iterable, Union
+
+# Use the official blocks module and its Block classes
+from blocks import BLOCKS, Block  # type: ignore
 
 # Type aliases
-Pos = Tuple[int, int]        # half-grid coordinate (x,y)
-Dir = Tuple[int, int]        # lazor direction (vx, vy) where vx,vy ∈ {-1, +1}
-BlockMap = Dict[Pos, str]    # {(cx,cy) at odd,odd -> 'A'|'B'|'C'}
+Pos = Tuple[int, int]                 # half-grid coordinate (x, y)
+Dir = Tuple[int, int]                 # lazor direction (vx, vy) where vx, vy ∈ {-1, +1}
+BlockMap = Dict[Pos, Block]           # {(cx,cy) at odd,odd -> Block instance}
 
 
 def _board_dims(board) -> Tuple[int, int]:
@@ -30,64 +26,99 @@ def _board_dims(board) -> Tuple[int, int]:
     return rows, cols
 
 
+def _value_to_block(val: Union[str, Block, None]) -> Optional[Block]:
+    """Convert a grid/board value into a Block instance (or None)."""
+    if val is None:
+        return None
+    if isinstance(val, Block):
+        return val
+    if isinstance(val, str):
+        return BLOCKS.get(val)
+    return None
+
+
 def _grid_to_blockmap(board) -> BlockMap:
-    """Build a block map from board.grid where cell centers are (2*c+1, 2*r+1)."""
-    rows, cols = _board_dims(board)
+    """
+    Build a block map from either:
+      - board.blocks (if present), or
+      - board.grid (fallback)
+
+    The returned map uses cell centers at (2*c+1, 2*r+1) and concrete Block objects.
+    """
     mp: BlockMap = {}
+
+    # Prefer an explicit mapping supplied by the solver
+    maybe_map = getattr(board, "blocks", None)
+    if isinstance(maybe_map, dict):
+        for pos, val in maybe_map.items():
+            blk = _value_to_block(val)
+            if blk is not None:
+                mp[pos] = blk
+        return mp
+
+    # Fallback: derive from the grid itself
+    rows, cols = _board_dims(board)
     for r in range(rows):
+        row = board.grid[r]
         for c in range(cols):
-            cell = board.grid[r][c]
-            if cell in ('A', 'B', 'C'):
-                cx, cy = 2*c + 1, 2*r + 1
-                mp[(cx, cy)] = cell
+            val = row[c]
+            blk = _value_to_block(val)
+            if blk is not None:
+                cx, cy = 2 * c + 1, 2 * r + 1
+                mp[(cx, cy)] = blk
+
     return mp
 
 
-def _edge_hit(blocks: BlockMap, x: int, y: int, vx: int, vy: int) -> Tuple[str, bool]:
+def _edge_hit(blocks: BlockMap, x: int, y: int, vx: int, vy: int) -> Tuple[Optional[Block], Optional[bool]]:
     """
-    If (x,y) is exactly at a block edge center, return (block_kind, vert_edge?).
+    If (x,y) is exactly at a block edge center, return (block, vert_edge?).
     Otherwise return (None, None).
 
-    Rules (half-grid geometry):
+    Half-grid geometry:
       - Vertical edge centers are at (even, odd). The adjacent cell center is (x+vx, y).
       - Horizontal edge centers are at (odd, even). The adjacent cell center is (x, y+vy).
     """
     # Vertical edge center
     if x % 2 == 0 and y % 2 == 1:
-        # cell just across the edge in the direction of travel
-        target = (x + vx, y)
-        kind = blocks.get(target)
-        if kind:
-            return kind, True
+        target = (x + vx, y)  # just across the edge in the travel direction
+        blk = blocks.get(target)
+        if blk is not None:
+            return blk, True
 
     # Horizontal edge center
     if x % 2 == 1 and y % 2 == 0:
         target = (x, y + vy)
-        kind = blocks.get(target)
-        if kind:
-            return kind, False
+        blk = blocks.get(target)
+        if blk is not None:
+            return blk, False
 
     return None, None
 
 
 def laser_path(board) -> List[Set[Pos]]:
     """
-    Trace each lazor from board.lasers over the half-grid, applying block interactions
-    from `blocks.BLOCKS`. Returns a list of sets; each set contains every (x,y) position
-    that the corresponding lazor (including refracted branches) visits.
+    Trace each lazor from board.lasers over the half-grid, applying the
+    `.interact()` logic implemented by Block classes from :mod:`blocks`.
 
-    Expectations (per assignment + user constraints):
-      - Lazors move only at 45°: (vx,vy) ∈ {(+1,+1), (+1,-1), (-1,+1), (-1,-1)}.
-      - Starts are never at cell centers or vertices (so we only land on edges or free lattice points).
-      - A hit can only occur at the center of a vertical or horizontal block edge.
+    Returns
+    -------
+    list[set[(int,int)]]:
+        For each lazor source in `board.lasers`, the set of all half-grid
+        coordinates visited by that lazor and any of its refracted branches.
+
+    Assumptions
+    -----------
+    - Lazor directions are 45° diagonals: (vx,vy) ∈ {(+1,+1), (+1,-1), (-1,+1), (-1,-1)}.
+    - Board boundaries are the rectangle [0, 2*cols] × [0, 2*rows].
     """
     rows, cols = _board_dims(board)
     if rows == 0 or cols == 0:
         return [set() for _ in getattr(board, "lasers", [])]
 
-    max_x, max_y = 2*cols, 2*rows  # inclusive bounds for the half-grid perimeter
+    max_x, max_y = 2 * cols, 2 * rows  # inclusive bounds of the half-grid perimeter
 
-    # Build a fast block lookup from the current board state (includes placed movables).
+    # Build a fast block lookup from the current board state
     blocks = _grid_to_blockmap(board)
 
     results: List[Set[Pos]] = []
@@ -95,7 +126,7 @@ def laser_path(board) -> List[Set[Pos]]:
     for (sx, sy, svx, svy) in board.lasers:
         # Active rays for this source: list of (pos, dir)
         active: List[Tuple[Pos, Dir]] = [((sx, sy), (svx, svy))]
-        visited_states: Set[Tuple[int,int,int,int]] = set()
+        visited_states: Set[Tuple[int, int, int, int]] = set()
         hits: Set[Pos] = set()
 
         while active:
@@ -111,18 +142,17 @@ def laser_path(board) -> List[Set[Pos]]:
                 visited_states.add(state)
 
                 # If we're centered on a block-edge, check for interaction.
-                kind, is_vert = _edge_hit(blocks, x, y, vx, vy)
-                if kind is not None:
-                    # Opaque: absorb ray (stop here).
-                    if kind == 'B':
+                blk, is_vert = _edge_hit(blocks, x, y, vx, vy)
+                if blk is not None:
+                    # Let the block drive the physics.
+                    interactions = blk.interact((x, y), (vx, vy), bool(is_vert))
+
+                    # No interactions means absorption (opaque)
+                    if not interactions:
                         break
 
-                    # Reflect/refract using the Block class' interact definition.
-                    # It returns a list of (pos, dir) pairs for new rays starting at the *same* edge position.
-                    interactions = BLOCKS[kind].interact((x, y), (vx, vy), is_vert)
-
-                    # Any refracted (pass-through) ray has the same direction; to avoid re-processing the same
-                    # edge immediately, step each spawned ray forward by one unit.
+                    # Spawn children rays. To avoid immediately re-processing
+                    # the same edge, step each spawned ray forward by one unit.
                     for (px, py), (rx, ry) in interactions:
                         nx, ny = px + rx, py + ry
                         if 0 <= nx <= max_x and 0 <= ny <= max_y:
