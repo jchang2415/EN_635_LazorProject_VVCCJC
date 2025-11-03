@@ -2,7 +2,7 @@
 '''
 Defines a function for simulating the path of a laser for a given board configuration.
 '''
-from blocks.py import BLOCKS
+from blocks import BLOCKS
 
 def hit_block(blocks, x_laser, y_laser):
     '''
@@ -73,7 +73,7 @@ def laser_path(board):
     rows, cols = board.size()
 
     # Obtain list of lasers for the board
-    lasers = [board.lasers]
+    lasers = list(board.lasers) #Changed and fixed
 
     # Obtain list of block positions for the board   ### NOT YET IN BFF PARSER FILE! Need to add? Or is this logic wrong; should this instead be a 2nd argument?
     blocks = board.blocks
@@ -147,7 +147,7 @@ def laser_path(board):
                     vx2, vy2 = new_dir
 
                     # Add the new laser(s) to the list of lasers; generates a copy of the original laser as well
-                    lasers.append((nx, ny), (vx2, vy2))
+                    lasers.append((nx, ny, vx2, vy2)) #changed -> fixed
 
                 # Delete the current laser beam
                 break                  
@@ -160,6 +160,7 @@ def laser_path(board):
 
     # Return all calculated paths
     return all_paths
+
 
 
 
