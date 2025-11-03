@@ -39,7 +39,7 @@ def get_open_slots(board):        # Doesn't seem like a function is necessary he
 
 def generate_block_combinations(board):
     """
-    Generate all possible configurations of movable blocks.
+    Generate a possible configurations of movable blocks, one at a time. Returns one configuration at a time. Will eventually generate all possible configurations if needed.
 
     Parameters
     ----------
@@ -48,8 +48,8 @@ def generate_block_combinations(board):
 
     Returns
     -------
-    list[dict]
-        Each dict maps (r, c) -> block type ('A', 'B', 'C', or None)
+    placement: dict
+        Dictionary showing one possible placement of blocks in the grid. Maps (r, c) -> block type ('A', 'B', 'C', or None)
     """
     open_slots = get_open_slots(board)
     movable_counts = board.movable_counts
@@ -66,7 +66,6 @@ def generate_block_combinations(board):
     #Generate all possible combinations(Cartesian product)
     all_combos = product(block_pool, repeat=len(open_slots))
 
-    valid_combos = []
     for combo in all_combos:
         used_counts = {'A': 0, 'B': 0, 'C': 0} #Track used blocks
         placement = {} #Map of (r, c) -> block type
@@ -81,10 +80,7 @@ def generate_block_combinations(board):
             placement[slot] = btype #Record placement
 
         if valid:
-            valid_combos.append(placement) #Store valid placement
-
-    return valid_combos #Return all valid configurations
-
+            yield placement
 
 def apply_blocks_to_board(base_board, placement):
     """
@@ -152,6 +148,7 @@ def solve(board):
 
     print("❌ No valid solution found.") #Notify user
     return None
+
 
 
 
