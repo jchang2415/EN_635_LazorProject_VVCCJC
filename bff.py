@@ -1,4 +1,3 @@
-# do we need to know the grid is rectangular? or check for it?    <- I don't think so, cause the games dimensions are set as far as I'm aware so it will always be square?
 class Board(object):
     """
     Wrapper for a parsed .bff file.
@@ -6,14 +5,14 @@ class Board(object):
     Attributes
     ----------
     grid : list[list[str]]
-    movable_counts : dict
+    movable_blocks : dict
     lasers : list
     targets : list
     """
 
-    def __init__(self, grid, movable_counts, lasers, targets):
+    def __init__(self, grid, movable_blocks, lasers, targets):
         self.grid = grid
-        self.movable_counts = movable_counts
+        self.movable_blocks = movable_blocks
         self.lasers = lasers
         self.targets = targets
 
