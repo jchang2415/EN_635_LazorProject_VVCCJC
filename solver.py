@@ -111,12 +111,12 @@ def apply_blocks_to_board(base_board, placement):
             grid[r][c] = btype
 
     #Collect all block positions (fixed + movable)
-    blocks = []
+    blocks = {}
     for r, row in enumerate(grid):
         for c, val in enumerate(row):
             if val in ('A', 'B', 'C'):
                 # Laser.py expects (type, x, y)
-                blocks.append((val, c, r))
+                blocks[((2*c) + 1, (2*r) + 1)] = val
 
     board_copy.blocks = blocks
     board_copy.grid = grid
@@ -152,5 +152,6 @@ def solve(board):
 
     print("❌ No valid solution found.") #Notify user
     return None
+
 
 
