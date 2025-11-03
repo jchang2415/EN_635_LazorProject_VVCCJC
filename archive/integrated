@@ -1,4 +1,4 @@
-class Board(object):
+"""class Board(object):
     """
     Wrapper for a parsed .bff file.
 
@@ -297,4 +297,4 @@ def laser_paths(board: "Board", placements: Dict[Tuple[int,int], str], max_steps
         pos, d, path = q.popleft()
         all_paths.append(path)
 
-    return all_paths
+    return all_paths """
