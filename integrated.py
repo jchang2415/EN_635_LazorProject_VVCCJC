@@ -24,34 +24,26 @@ class Board(object):
         self.lasers = lasers
         self.targets = targets
 
-    def size(self):
-        """
-        Return (rows, cols) of the original block grid.
-        """
+    def size(self) -> Tuple[int, int]:
+        """Return (rows, cols) of the original block grid."""
         return (len(self.grid), len(self.grid[0]) if self.grid else 0)
 
-    def size_expan(self):
-        """
-        Return (rows, cols) of the expanded grid.
-        """
+    def size_expan(self) -> Tuple[int, int]:
+        """Return (rows, cols) of the expanded grid."""
         return (len(self.expan_grid), len(self.expan_grid[0]) if self.expan_grid else 0)
 
-    def fixed_blocks(self):
-        """
-        Return a dict {(r,c): 'A'/'B'/'C'} for fixed blocks present in the ORIGINAL grid.
-        """
-        fixed = {}
+    def fixed_blocks(self) -> Dict[Tuple[int, int], str]:
+        """Return a dict {(r,c): 'A'/'B'/'C'} for fixed blocks present in the ORIGINAL grid."""
+        fixed: Dict[Tuple[int, int], str] = {}
         for r, row in enumerate(self.grid):
             for c, cell in enumerate(row):
                 if cell in ('A', 'B', 'C'):
                     fixed[(r, c)] = cell
         return fixed
 
-    def placeable_slots(self):
-        """
-        Return a list of (r,c) indices in the ORIGINAL grid where movable blocks can be placed ('o' cells).
-        """
-        slots = []
+    def placeable_slots(self) -> List[Tuple[int, int]]:
+        """Return a list of (r,c) indices in the ORIGINAL grid where movable blocks can be placed ('o' cells)."""
+        slots: List[Tuple[int, int]] = []
         for r, row in enumerate(self.grid):
             for c, cell in enumerate(row):
                 if cell == 'o':
@@ -59,16 +51,13 @@ class Board(object):
         return slots
 
 
-def _build_expanded_grid(grid):
+def _build_expanded_grid(grid: List[List[str]]) -> List[List[str]]:
     """
     Create the half-step expanded grid with 'x' spacers *and* a full 'x' border.
 
     For an R x C original grid, the expanded grid is (2R+1) x (2C+1):
       - Initialize everything to 'x'
       - Place each original cell at (2*r+1, 2*c+1)
-
-    Example (3x3) -> 7x7:
-      originals at (1,1), (1,3), (1,5), (3,1), ..., (5,5)
     """
     if not grid:
         return []
@@ -85,18 +74,18 @@ def _build_expanded_grid(grid):
     return expan
 
 
-def parse_bff(path):
+def parse_bff(path: str) -> Board:
     """Parse a .bff file from disk and return a Board object with expanded grid included."""
     with open(path, 'r', encoding='utf-8') as bff_file:
         lines = [ln.strip() for ln in bff_file]
 
-    grid = []
-    lasers = []
-    targets = []
-    counts = {'A': 0, 'B': 0, 'C': 0}
+    grid: List[List[str]] = []
+    lasers: List[Tuple[int, int, int, int]] = []
+    targets: List[Tuple[int, int]] = []
+    counts: Dict[str, int] = {'A': 0, 'B': 0, 'C': 0}
     i = 0
 
-    def is_comment_or_blank(string):
+    def is_comment_or_blank(string: str) -> bool:
         return (len(string) == 0) or (string[0] == '#')
 
     while i < len(lines):
@@ -150,17 +139,14 @@ def parse_bff(path):
 
     # Build the expanded grid with 'x' spacers
     expan_grid = _build_expanded_grid(grid)
-
     return Board(expan_grid, grid, counts, lasers, targets)
 
-board=parse_bff('dark_1.bff')
-print(board.expan_grid)
-print(board.grid)
 
 class Block:
     kind: str
-    def interact(self, pos, dir, vert_edge: bool):
+    def interact(self, pos: Tuple[int, int], dir: Tuple[int, int], vert_edge: bool):
         raise NotImplementedError
+
 
 class ReflectBlock(Block):
     """
@@ -169,32 +155,38 @@ class ReflectBlock(Block):
         - horizontal block face  (odd x, even y): flip vy -> ( vx, −vy)
     """
     kind = 'A'
-    def interact(self, pos, dir, vert_edge: bool):
-        vx,vy = dir.x, dir.y
+    def interact(self, pos: Tuple[int, int], dir: Tuple[int, int], vert_edge: bool):
+        vx, vy = dir
         if vert_edge:
             return [(pos, (-vx, vy))]
         else:
             return [(pos, (vx, -vy))]
 
-class OpaqueBlock(Block):
-    """
-        B: absorbs beam.
-    """
-    kind = 'B'
 
-    def interact(self, pos, dir, vert_edge: bool):
+class OpaqueBlock(Block):
+    """B: absorbs beam."""
+    kind = 'B'
+    def interact(self, pos: Tuple[int, int], dir: Tuple[int, int], vert_edge: bool):
         return []
+
 
 class RefractBlock(Block):
     """
-        C: refracts lazor, allows lazor to pass through and reflects at 90° like ReflectBlock class
+    C: refracts lazor, allows lazor to pass through AND reflects at 90° like ReflectBlock.
     """
     kind = 'C'
-    def interact(self, pos, dir, vert_edge: bool):
-        vx, vy = dir.x, dir.y
+    def interact(self, pos: Tuple[int, int], dir: Tuple[int, int], vert_edge: bool):
+        vx, vy = dir
         if vert_edge:
-            return [(pos,dir),(pos,(-vx, vy))]
+            # pass-through and a vertical reflection
+            return [(pos, (vx, vy)), (pos, (-vx, vy))]
         else:
-            return [(pos,dir),(pos,(vx, -vy))]
+            # pass-through and a horizontal reflection
+            return [(pos, (vx, vy)), (pos, (vx, -vy))]
 
-BLOCKS: dict[str, Block] = { 'A': ReflectBlock(), 'B': OpaqueBlock(), 'C': RefractBlock(),}
+
+BLOCKS: Dict[str, Block] = {
+    'A': ReflectBlock(),
+    'B': OpaqueBlock(),
+    'C': RefractBlock(),
+}
