@@ -5,14 +5,14 @@ class Board(object):
     Attributes
     ----------
     grid : list[list[str]]
-    movable_blocks : dict
+    movable_counts : dict
     lasers : list
     targets : list
     """
 
-    def __init__(self, grid, movable_blocks, lasers, targets):
+    def __init__(self, grid, movable_counts, lasers, targets):
         self.grid = grid
-        self.movable_counts = movable_blocks
+        self.movable_counts = movable_counts
         self.lasers = lasers
         self.targets = targets
 
