@@ -1,8 +1,3 @@
-import copy
-import time
-from PIL import ImageDraw, Image
-from sympy.utilities.iterables import multiset_permutations
-
 class Board(object):
     """
     Wrapper for a parsed .bff file.
