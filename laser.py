@@ -2,6 +2,7 @@
 '''
 Defines a function for simulating the path of a laser for a given board configuration.
 '''
+from blocks.py import BLOCKS
 
 def hit_block(blocks, x_laser, y_laser):
     '''
@@ -127,32 +128,29 @@ def laser_path(board):
             # If type is not none, then the laser hits a block
             if b_type:
 
-                # If the block type is B
-                if b_type == "B":
+                # To integrate with Block class, set vert_edge as TRUE if orientation == "vertical"
+                vert_edge = (orientation == "vertical")
 
-                    # Do nothing and break the loop so that the laser doesn't progress further (is absorbed)
-                    break
+                # Use the block type of the block hit to generate a Block class object
+                block_hit = BLOCKS[b_type]
 
-                # Otherwise the block is either A or C so proceed accordingly
-                else:
-                    
-                    # Check to see if the block is type C
-                    if b_type == "C":
+                # Use the block to object and the interact() method to determine what happens when the laser hits the block
+                results = block_hit.interact((x_new, y_new), (vx, vy), vert_edge)
 
-                        # Create a new lazor originating from that point with the same (unreflected) state
-                        lasers.append((x_new, y_new, vx, vy))
+                # Use the generated results to generate the resulting laser beams from the interaction
+                for new_pos, new_dir in results:
 
-                    # If the block hits a horizontal edge,
-                    if orientation == "horizontal":
+                    # Define the starting position of the new laser
+                    nx, ny = new_pos
 
-                        # Reflect it accordingly
-                        vy = -vy
+                    # Define the vx vy of the new laser
+                    vx2, vy2 = new_dir
 
-                    # Or else it must hit vertical
-                    else:
+                    # Add the new laser(s) to the list of lasers; generates a copy of the original laser as well
+                    lasers.append((nx, ny), (vx2, vy2))
 
-                        # Reflect it accordingly
-                        vx = -vx
+                # Delete the current laser beam
+                break                  
 
             # Advance the laser to the next position
             x, y = x_new, y_new
@@ -162,6 +160,6 @@ def laser_path(board):
 
     # Return all calculated paths
     return all_paths
-    return all_paths
+
 
 
