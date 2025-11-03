@@ -134,11 +134,9 @@ def solve(board):
         Mapping {(r, c): block type} for the valid solution,
         or None if no valid configuration found.
     """
-    print("Generating possible configurations...")
-    combos = generate_block_combinations(board)
-    print(f"Total combinations to test: {len(combos)}")
+    test_combo = generate_block_combinations(board)
 
-    for i, placement in enumerate(combos, start=1): #1-indexed for user-friendly output
+    for i, placement in enumerate(test_combo, start=1): #1-indexed for user-friendly output
         test_board = apply_blocks_to_board(board, placement) #Apply current placement
         hit_paths = laser_path(test_board) #Simulate lasers
 
@@ -148,6 +146,7 @@ def solve(board):
 
     print("❌ No valid solution found.") #Notify user
     return None
+
 
 
 
