@@ -1,138 +1,162 @@
 # Laser Simulation #
-"""
-Simulate lazor paths over a half-grid board using block interaction rules
-defined in blocks (2).py (BLOCKS registry). This module exports a single
-function: laser_path(board) -> list[set[(int,int)]].
-"""
-from typing import Dict, Tuple, List, Set
-# Prefer a normal module import; if unavailable, fall back to a local filename with spaces.
-try:
-    from blocks import BLOCKS  # Uses ReflectBlock/OpaqueBlock/RefractBlock via .interact
-except Exception:  # pragma: no cover - fallback for filenames like 'blocks (2).py'
-    import importlib.util, pathlib, types
-    _bp = pathlib.Path(__file__).with_name("blocks (2).py")
-    spec = importlib.util.spec_from_file_location("blocks2", str(_bp))
-    _mod = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader, "Unable to load blocks (2).py"
-    spec.loader.exec_module(_mod)  # type: ignore[attr-defined]
-    BLOCKS = getattr(_mod, "BLOCKS")
+'''
+Defines a function for simulating the path of a laser for a given board configuration.
+'''
+from blocks import BLOCKS
 
-# Type aliases
-Pos = Tuple[int, int]        # half-grid coordinate (x,y)
-Dir = Tuple[int, int]        # lazor direction (vx, vy) where vx,vy ∈ {-1, +1}
-BlockMap = Dict[Pos, str]    # {(cx,cy) at odd,odd -> 'A'|'B'|'C'}
+def hit_block(blocks, x_laser, y_laser):
+    '''
+    Helper function that checks if a laser position would hit a block + returns the type of block hit as well as the edge (horizontal or vertical) that was hit.
 
+    If no block would be hit, returns None, None.
 
-def _board_dims(board) -> Tuple[int, int]:
-    """Return (rows, cols) from the board.grid."""
-    rows = len(board.grid)
-    cols = len(board.grid[0]) if rows else 0
-    return rows, cols
+    Assumes input of a "blocks" dictionary that has the (x, y) of the center of the block as keys and the type of the block as the value.
 
+    **Arguments**
 
-def _grid_to_blockmap(board) -> BlockMap:
-    """Build a block map from board.grid where cell centers are (2*c+1, 2*r+1)."""
-    rows, cols = _board_dims(board)
-    mp: BlockMap = {}
-    for r in range(rows):
-        for c in range(cols):
-            cell = board.grid[r][c]
-            if cell in ('A', 'B', 'C'):
-                cx, cy = 2*c + 1, 2*r + 1
-                mp[(cx, cy)] = cell
-    return mp
+        blocks: *dict[tuple, str]*
+            A dictionary of the blocks
 
+        x_laser: *int*
+            X-coordinate of the laser position.
 
-def _edge_hit(blocks: BlockMap, x: int, y: int, vx: int, vy: int) -> Tuple[str, bool]:
-    """
-    If (x,y) is exactly at a block edge center, return (block_kind, vert_edge?).
-    Otherwise return (None, None).
+        y_laser: *int*
+            Y-coordinate of the laser position.
 
-    Rules (half-grid geometry):
-      - Vertical edge centers are at (even, odd). The adjacent cell center is (x+vx, y).
-      - Horizontal edge centers are at (odd, even). The adjacent cell center is (x, y+vy).
-    """
-    # Vertical edge center
-    if x % 2 == 0 and y % 2 == 1:
-        # cell just across the edge in the direction of travel
-        target = (x + vx, y)
-        kind = blocks.get(target)
-        if kind:
-            return kind, True
+    **Returns**
 
-    # Horizontal edge center
-    if x % 2 == 1 and y % 2 == 0:
-        target = (x, y + vy)
-        kind = blocks.get(target)
-        if kind:
-            return kind, False
+        b_type: *str*
+            A string "A", "B", or "C" that tells you the type of block that was hit by the provided laser.
 
-    return None, None
+        orientation: *str*
+            A string "vertical" or "horizontal" that tells you the orientation of edge that was hit on the block.
+
+    '''
+    edges = [
+         (-1, 0, "vertical"),
+         (1, 0, "vertical"),
+         (0, -1, "horizontal"),
+         (0, 1, "horizontal")
+    ]
+
+    for dx, dy, orientation in edges:
+
+        edge = (x_laser + dx, y_laser + dy)
+
+        if edge in blocks:
+
+            b_type = blocks[edge]
+
+            return b_type, orientation
+
+    return None, None 
+
+def laser_path(board):
+    '''
+    Function that calculates the path a laser will take for the provided Lazor board.
+
+    **Arguments**
+
+        board: *object of class Board*
+            Object of the class "Board" that contains the details of a particular Lazor board set-up.
+            Obtained from parse_bff() function on a .bff file.
+
+    **Returns**
+
+        all_paths: *list, set, tuple, int*
+            A list of sets, one for each laser on the board.
+            Each set is a set of tuples containing the (x,y) points that the particular laser will pass through for the given board set-up.
 
 
-def laser_path(board) -> List[Set[Pos]]:
-    """
-    Trace each lazor from board.lasers over the half-grid, applying block interactions
-    from `blocks.BLOCKS`. Returns a list of sets; each set contains every (x,y) position
-    that the corresponding lazor (including refracted branches) visits.
+    '''
+    # Obtain dimensions of the board
+    rows, cols = board.size()
 
-    Expectations (per assignment + user constraints):
-      - Lazors move only at 45°: (vx,vy) ∈ {(+1,+1), (+1,-1), (-1,+1), (-1,-1)}.
-      - Starts are never at cell centers or vertices (so we only land on edges or free lattice points).
-      - A hit can only occur at the center of a vertical or horizontal block edge.
-    """
-    rows, cols = _board_dims(board)
-    if rows == 0 or cols == 0:
-        return [set() for _ in getattr(board, "lasers", [])]
+    # Obtain list of lasers for the board
+    lasers = list(board.lasers) #Changed and fixed
 
-    max_x, max_y = 2*cols, 2*rows  # inclusive bounds for the half-grid perimeter
+    # Obtain list of block positions for the board   ### NOT YET IN BFF PARSER FILE! Need to add? Or is this logic wrong; should this instead be a 2nd argument?
+    blocks = board.blocks
+    
+    # Initialize empty variable to hold all hit paths calculated
+    all_paths = []
 
-    # Build a fast block lookup from the current board state (includes placed movables).
-    blocks = _grid_to_blockmap(board)
+    # While the queue of lasers to process is still not empty
+    while lasers:
 
-    results: List[Set[Pos]] = []
+        # Pop off the next laser + sort information from the laser
+        x, y, vx, vy = lasers.pop(0)
+        
+        # Initialize empty set to hold the points the laser hits
+        hit_path = set()
 
-    for (sx, sy, svx, svy) in board.lasers:
-        # Active rays for this source: list of (pos, dir)
-        active: List[Tuple[Pos, Dir]] = [((sx, sy), (svx, svy))]
-        visited_states: Set[Tuple[int,int,int,int]] = set()
-        hits: Set[Pos] = set()
+        # Initialize empty set to hold already-visited "states" (both position and vx, vy) to prevent infinite loops
+        visited_states = set()
 
-        while active:
-            (x, y), (vx, vy) = active.pop()
+        # Extrapolate path of lazer until it leaves the board or is absorbed
+        while 0 <= x < (cols*2) and 0 <= y < (rows*2):
 
-            # Advance until this ray dies (out of bounds or absorbed) or branches.
-            while 0 <= x <= max_x and 0 <= y <= max_y:
-                hits.add((x, y))
+            # Add current (x,y) coordinates to "hit_path"
+            hit_path.add((x, y))
 
-                state = (x, y, vx, vy)
-                if state in visited_states:
-                    break  # loop detected for this ray
-                visited_states.add(state)
+            # Check for infinite loops
+            state = (x, y, vx, vy)
 
-                # If we're centered on a block-edge, check for interaction.
-                kind, is_vert = _edge_hit(blocks, x, y, vx, vy)
-                if kind is not None:
-                    # Opaque: absorb ray (stop here).
-                    if kind == 'B':
-                        break
+            # If the current state has already been visited, break the loop, as no new paths will be discovered
+            if state in visited_states:
 
-                    # Reflect/refract using the Block class' interact definition.
-                    # It returns a list of (pos, dir) pairs for new rays starting at the *same* edge position.
-                    interactions = BLOCKS[kind].interact((x, y), (vx, vy), is_vert)
+                break
 
-                    # Any refracted (pass-through) ray has the same direction; to avoid re-processing the same
-                    # edge immediately, step each spawned ray forward by one unit.
-                    for (px, py), (rx, ry) in interactions:
-                        nx, ny = px + rx, py + ry
-                        if 0 <= nx <= max_x and 0 <= ny <= max_y:
-                            active.append(((nx, ny), (rx, ry)))
-                    break  # stop advancing this current ray; spawned children continue instead.
+            # Otherwise, add the current state to "visited_states"
+            visited_states.add(state)
 
-                # No interaction at this node -> advance diagonally by one
-                x += vx
-                y += vy
+            # Calculate the next position
+            x_new = x + vx
+            y_new = y + vy
 
-        results.append(hits)
+            # Check that the laser is still inside the grid
+            if not (0 <= x_new < (cols*2) and 0 <= y_new < (rows*2)):
 
-    return results
+                # If the laser has left the grid, break the loop and move onto the next laser
+                break
+
+            # Check to see if the laser intersects a block;  USING DICTIONARY FOR BLOCKS NOW FOR BETTER SEARCH EFFICIENCY
+
+            # Check to see if the laser hits a block + get block type and hit orientation if so
+            b_type, orientation = hit_block(blocks, x_new, y_new)
+
+            # If type is not none, then the laser hits a block
+            if b_type:
+
+                # To integrate with Block class, set vert_edge as TRUE if orientation == "vertical"
+                vert_edge = (orientation == "vertical")
+
+                # Use the block type of the block hit to generate a Block class object
+                block_hit = BLOCKS[b_type]
+
+                # Use the block to object and the interact() method to determine what happens when the laser hits the block
+                results = block_hit.interact((x_new, y_new), (vx, vy), vert_edge)
+
+                # Use the generated results to generate the resulting laser beams from the interaction
+                for new_pos, new_dir in results:
+
+                    # Define the starting position of the new laser
+                    nx, ny = new_pos
+
+                    # Define the vx vy of the new laser
+                    vx2, vy2 = new_dir
+
+                    # Add the new laser(s) to the list of lasers; generates a copy of the original laser as well
+                    lasers.append((nx, ny, vx2, vy2)) #changed -> fixed
+
+                # Delete the current laser beam
+                break                  
+
+            # Advance the laser to the next position
+            x, y = x_new, y_new
+
+        # Add the hit path for the specific laser to the list of ALL laser paths
+        all_paths.append(hit_path)
+
+    # Return all calculated paths
+    return all_paths
