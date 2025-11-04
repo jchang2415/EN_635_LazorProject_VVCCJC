@@ -11,7 +11,7 @@ main.py- Allows command line entry.
 tests.py- COntains unit tests.
 
 ## Installation
-pytest install, sys install, time install
+pytest install
 
 ## Usage
 The function can be called by main.py <filename.bff>
