@@ -96,7 +96,7 @@ def test_generate_block_combinations_counts_and_types():
     '''
 
     # Generate a test Board classo object for testing
-    board = TestBoard()
+    board = SampleBoard()
 
     # Use block combo generator function on that test object
     combos = list(generate_block_combinations(board))
@@ -128,7 +128,7 @@ def test_generate_block_combinations_zero_blocks():
     Testing to ensure that if no movable blocks are fed into the combo generation function, all placements should be None.
     '''
     # Generate a test Board class object
-    board = TestBoard()
+    board = SampleBoard()
 
     # Set the movable counts of that test Board class object to none
     board.movable_counts = {'A': 0, 'B': 0, 'C': 0}
@@ -153,7 +153,7 @@ def test_apply_blocks_to_board_adds_blocks_correctly():
     '''
 
     # Generate a test Board class object
-    board = TestBoard()
+    board = SampleBoard()
 
     # Generate a sample placement
     placement = {(0, 0): 'A', (0, 2): None, (1, 1): 'B', (1, 2): None}
@@ -182,7 +182,7 @@ def test_apply_blocks_to_board_does_not_modify_original():
     '''
 
     # Generate a test Board class object
-    board = TestBoard()
+    board = SampleBoard()
 
     # Generate a sample placement for testing
     placement = {(0, 0): 'A'}
@@ -202,7 +202,7 @@ def test_solve_finds_solution(monkeypatch):
     Check that our solver function can correctly find a solution that exists.
     '''
     # Generates a test Board class object
-    board = TestBoard()
+    board = SampleBoard()
 
     # Force generate_block_combinations to yield one placement
     fake_placement = {(0, 0): 'A'}
@@ -233,7 +233,7 @@ def test_solve_no_solution(monkeypatch):
     Test to ensure that the solver returns None when no solution to a board is possible.
     '''
     # Generate a test Board
-    board = TestBoard()
+    board = SampleBoard()
 
     # Force the attributes to yield an unsolvable board
     monkeypatch.setattr('solver.generate_block_combinations',
@@ -247,5 +247,6 @@ def test_solve_no_solution(monkeypatch):
 
     # Check to ensure that no solution is found as expected
     assert result is None
+
 
 
