@@ -2,29 +2,29 @@
 This repository contains code for solving problems in the "Lazors" game available on Steam and iPhone when provided with a ".bff" file describing the board set-up for the problem.
 
 ## Files
-bff.py- Board class and .bff file parser. \n
-blocks.py- Base block class and subclasses. \n
-laser.py- Simulates laser movement on the board. \n
-solver.py- Generates all possible placements of blocks on the board, simulates laser and checks weather target was hit. \n
-output.py- Writes solution output. \n
-main.py- Allows command line entry. \n
-tests/test_*.py - Contains the various unit tests. \n
+bff.py- Board class and .bff file parser.  
+blocks.py- Base block class and subclasses.  
+laser.py- Simulates laser movement on the board.  
+solver.py- Generates all possible placements of blocks on the board, simulates laser and checks weather target was hit.  
+output.py- Writes solution output.  
+main.py- Allows command line entry.  
+tests/test_*.py - Contains the various unit tests.  
 
 ## Installation
 pytest install
 
 ## Usage
-To solve a puzzle using this code, download the relevant .bff file and run the function using: \n
-python main.py <filename.bff>  \n
+To solve a puzzle using this code, download the relevant .bff file and run the function using:  
+python main.py <filename.bff>   
 The output will be generated in a folder called "outputs" as a txt file named filename_solution.txt containing the grid with blocks placed in the solution configuration in a format similar to the .bff file input.
 
 ## Running Unit Tests
-To run unit tests, make sure pytest is installed. If not installed, install it using: \n
-pip install pytest \n
-Then run the unit tests using this command: \n
-python -m pytest -v  \n
-\n 
-Example Output:  \n
+To run unit tests, make sure pytest is installed. If not installed, install it using:  
+pip install pytest  
+Then run the unit tests using this command:  
+python -m pytest -v  
+   
+Example Output:   
 '''
 tests/test_bff.py::test_board_methods PASSED                                                                                                                   [  4%]
 tests/test_bff.py::test_invalid_grid_cell PASSED                                                                                                               [  9%]
