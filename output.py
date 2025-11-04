@@ -1,26 +1,23 @@
 # Solution Output Generation #
-'''
+"""
 Code containing a function that prints the generated solution to an output file.
 Requires a generated solution using functions from solver.py
-'''
+"""
 
 
 def write_solution(board, placement, out_path="solution.txt"):
-    '''
+    """
     Function for writing the found solution for a given board to an easily interpretable ASCII file.
 
-    **Arguments**
-
-        board: *Board*
+    Parameters
+        board: Board
             Object of class "Board" that contains the information for the board that was solved; parsed from .bff file.
-
-        placement: *dict*
+        placement: dict
             Dictionary containing the placement of all blocks generated from the solve() function
-
-        out_path: *str*
+        out_path: str
             File path for output file, including the file extension ".txt".
             Default path is "solution.txt"
-    '''
+    """
     # Copy original grid parsed from original .bff file
     grid = [row[:] for row in board.grid]
 
@@ -52,3 +49,4 @@ def write_solution(board, placement, out_path="solution.txt"):
 
     # Indicate that the solution has been printed out to a solution file
     print(f"Solution has been written to {out_path}!")
+
