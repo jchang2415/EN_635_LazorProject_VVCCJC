@@ -8,7 +8,7 @@ This repository contains code for solving problems in the "Lazors" game availabl
 *solver.py* - Generates all possible placements of blocks on the board, simulates laser and checks weather target was hit.  
 *output.py* - Writes solution output.  
 *main.py* - Allows command line entry.  
-*tests/test_**.py - Contains the various unit tests.  
+*tests/test_<testname>.py* - Contains the various unit tests.  
 
 ## Features
 The program will:
