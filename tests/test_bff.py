@@ -6,10 +6,10 @@ from bff import parse_bff, Board
 # Helper function for generating a sample bff file to test parsing
 
 
-def write_bff(temp_path, text):
+def write_bff(tmp_path, text):
 
     # Generate the file path
-    path = temp_path / "test.bff"
+    path = tmp_path / "test.bff"
 
     # Write the provided text to the sample bff file
     path.write_text(text.strip(), encoding="utf-8")
@@ -43,7 +43,7 @@ def test_board_methods():
 # Test that an invalid grid cell will raise an error
 
 
-def test_invalid_grid_cell(temp_path):
+def test_invalid_grid_cell(tmp_path):
     '''
     Testing to make sure an invalid grid symbol raises an error.
     '''
@@ -55,7 +55,7 @@ def test_invalid_grid_cell(temp_path):
     '''
 
     # Make a test bff file with that content
-    path = write_bff(temp_path, content)
+    path = write_bff(tmp_path, content)
 
     # Attempt to parse the test bff file and ensure that an accurate error is
     # raised
@@ -65,7 +65,7 @@ def test_invalid_grid_cell(temp_path):
 # Test that parser will catch a missing argument for a laser object in the file
 
 
-def test_invalid_laser(temp_path):
+def test_invalid_laser(tmp_path):
     '''
     Testing to make sure an invalid laser will raise an error.
     '''
@@ -79,7 +79,7 @@ def test_invalid_laser(temp_path):
     """
 
     # Make a test bff file with that content
-    path = write_bff(temp_path, content)
+    path = write_bff(tmp_path, content)
 
     # Attempt to parse the test bff file and ensure that an accurate error is
     # raised
@@ -89,7 +89,7 @@ def test_invalid_laser(temp_path):
 # Test that a missing coordinate for a target will be caught and raise an error
 
 
-def test_invalid_target(temp_path):
+def test_invalid_target(tmp_path):
     '''
     Testing to make sure an invalid target will raise an error.
     '''
@@ -102,7 +102,7 @@ def test_invalid_target(temp_path):
     """
 
     # Make a test bff file with that content
-    path = write_bff(temp_path, content)
+    path = write_bff(tmp_path, content)
 
     # Attempt to parse the test bff file and ensure that an accurate error is
     # raised
@@ -112,7 +112,7 @@ def test_invalid_target(temp_path):
 # Test overall parsing of the bff file
 
 
-def test_valid_bff_parsing(temp_path):
+def test_valid_bff_parsing(tmp_path):
     '''
     Test that a valid .bff file is parsed correctly and generates an accurate Board class object.
     '''
@@ -132,7 +132,7 @@ def test_valid_bff_parsing(temp_path):
     """
 
     # Make a test bff file with that content
-    path = write_bff(temp_path, content)
+    path = write_bff(tmp_path, content)
 
     # Use the function to parse the test file
     board = parse_bff(path)
@@ -153,7 +153,7 @@ def test_valid_bff_parsing(temp_path):
 # Test that the parser correctly ignores comments and blank lines in bff files
 
 
-def test_ignore_comments_and_blank_lines(temp_path):
+def test_ignore_comments_and_blank_lines(tmp_path):
     '''
     Testing to ensure that the parser ignores comment lines (starting with "#") and blank lines.
     '''
@@ -182,7 +182,7 @@ def test_ignore_comments_and_blank_lines(temp_path):
     """
 
     # Make a test bff file with that content
-    path = write_bff(temp_path, content)
+    path = write_bff(tmp_path, content)
 
     # Parse the test file
     board = parse_bff(path)
@@ -196,3 +196,4 @@ def test_ignore_comments_and_blank_lines(temp_path):
     # Check board helper methods
     assert board.size() == (2, 3)
     assert board.placeable_slots() == [(0, 0), (0, 2), (1, 0), (1, 1), (1, 2)]
+
