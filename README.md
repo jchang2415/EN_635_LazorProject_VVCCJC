@@ -26,7 +26,8 @@ Supported Lazor Block Types:
 ## Installation
 Download the GitHub repository as a .zip file.
 For unit testing, install the pytest module by running the following command:  
-pytest install
+  
+*pytest install*
 
 ## Usage
 To solve a puzzle using this code, download the relevant .bff file and run the function using:
@@ -46,7 +47,7 @@ To run unit tests, make sure pytest is installed. If not installed, install it u
 Then run the unit tests using this command:  
   
 *python -m pytest -v*  
-  
+
   
 Example Output:  
 <img width="1503" height="550" alt="image" src="https://github.com/user-attachments/assets/00b62028-e666-4fcc-a2f5-f25df489521b" />
