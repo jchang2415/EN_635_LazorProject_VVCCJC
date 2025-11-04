@@ -32,7 +32,7 @@ def test_btype_A():
     ]
 
     # Make a sample laser moving towards the A block for testing
-    lasers = [(1, 0, -1, -1)]
+    lasers = [(1, 0, 1, 1)]
 
     # Use helper function to make a grid with the sample grid and laser
     test_board = make_board(grid, lasers)
@@ -63,7 +63,7 @@ def test_btype_B():
     ]
 
     # Make a sample laser moving towards the A block for testing
-    lasers = [(1, 0, -1, -1)]
+    lasers = [(1, 0, 1, 1)]
 
     # Use helper function to make a grid with the sample grid and laser
     test_board = make_board(grid, lasers)
@@ -92,7 +92,7 @@ def test_btype_C():
     ]
 
     # Make a sample laser moving towards the A block for testing
-    lasers = [(1, 0, -1, -1)]
+    lasers = [(1, 0, 1, 1)]
 
     # Use helper function to make a grid with the sample grid and laser
     test_board = make_board(grid, lasers)
@@ -118,3 +118,4 @@ def test_btype_C():
 
     # Laser should have 2 distinct trajectories
     assert (4, 3) in hits and (4, 1) in hits
+
