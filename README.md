@@ -1,4 +1,4 @@
-<img width="1503" height="550" alt="image" src="https://github.com/user-attachments/assets/00b62028-e666-4fcc-a2f5-f25df489521b" /># Lazor Project (Vedant, Cam, and Jason)
+# Lazor Project (Vedant, Cam, and Jason)
 This repository contains code for solving problems in the "Lazors" game available on Steam and iPhone when provided with a ".bff" file describing the board set-up for the problem.
 
 ## Files
@@ -32,7 +32,10 @@ The output will be generated in a folder called "outputs" as a txt file named fi
 To run unit tests, make sure pytest is installed. If not installed, install it using:  
 pip install pytest  
 Then run the unit tests using this command:  
-python -m pytest -v    
+python -m pytest -v  
+
+Example Output:  
+<img width="1503" height="550" alt="image" src="https://github.com/user-attachments/assets/00b62028-e666-4fcc-a2f5-f25df489521b" />
 
   
 
