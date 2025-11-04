@@ -61,14 +61,14 @@ def generate_block_combinations(board):
     # Use a combination method to generate all possible COMBOS of slot
     # placements (since order doesn't matter between blocks of same type)
 
-    # Generate all possible placements of all the A blocks
+    # Generate all possible placements of all the A blocks 
+    # Need to do with with all blocks, A, B, C.
     for a_slots in combinations(slots_idx, movable_counts.get('A', 0)):
 
         # For all of those possibilities, use the remaining open slots
         remaining_after_a = [i for i in slots_idx if i not in a_slots]
 
         # For the remaining open slots, generate all possible placement of B
-        # blocks
         for b_slots in combinations(
             remaining_after_a,
             movable_counts.get(
@@ -172,5 +172,6 @@ def solve(board):
 
     print("No valid solution found.")  # Notify user
     return None
+
 
 
