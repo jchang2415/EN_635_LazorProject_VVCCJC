@@ -2,15 +2,18 @@
 This repository contains code for solving problems in the "Lazors" game available on Steam and iPhone when provided with a ".bff" file describing the board set-up for the problem.
 
 ## Files
-
-
- 
+bff.py- Board class and .bff file parser.
+blocks.py- Base block class and subclasses.
+laser.py- Simulates laser movement on the board.
+solver.py- Generates all possible placements of blocks on the board, simulates laser and checks weather target was hit. 
+output.py- Writes solution output.
+main.py- Allows command line entry.
+tests.py- COntains unit tests.
 
 ## Installation
 npm install
 
 ## Usage
-npm start
 The function can be called by main.py <filename.bff>
 The output will be a txt file named filename_solution.txt containing the grid with blocks placed in the solution configuration in a format similar to the .bff file input.
 
