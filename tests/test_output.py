@@ -4,7 +4,7 @@ import pytest
 import os
 from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
-from output.py import write_solution
+from output import write_solution
 
 # Generate a sample board to grid to test the function
 @pytest.fixture
@@ -113,3 +113,4 @@ def test_empty_placement(mock_board):
     # Remove the test file again
     finally:
         os.remove(tmp_path)
+
