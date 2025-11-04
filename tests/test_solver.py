@@ -15,7 +15,7 @@ class TestBoard:
     """Minimal fake Board class for testing solver logic in isolation from the rest of our code."""
 
     # Define attributes for test Board class
-    def __init__(self):
+    def setup_method(self):
 
         # Define a sample grid for testing
         self.grid = [
@@ -247,3 +247,4 @@ def test_solve_no_solution(monkeypatch):
 
     # Check to ensure that no solution is found as expected
     assert result is None
+
