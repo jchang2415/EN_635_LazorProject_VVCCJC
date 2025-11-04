@@ -4,7 +4,8 @@ Code containing a function that prints the generated solution to an output file.
 Requires a generated solution using functions from solver.py
 '''
 
-def write_solution(board, placement, out_path = "solution.txt"):
+
+def write_solution(board, placement, out_path="solution.txt"):
     '''
     Function for writing the found solution for a given board to an easily interpretable ASCII file.
 
@@ -30,7 +31,8 @@ def write_solution(board, placement, out_path = "solution.txt"):
         # If a block is in that position
         if b_type:
 
-            # Replace the grid element at that position with the letter representing the block type
+            # Replace the grid element at that position with the letter
+            # representing the block type
             grid[r][c] = b_type
 
     # Format generated grid to be human-readable
@@ -38,11 +40,12 @@ def write_solution(board, placement, out_path = "solution.txt"):
     # Join elements in each row of "grid" with a space separating elements
     lines = [" ".join(row) for row in grid]
 
-    # Join each row of grid with a newline character (to make a single ASCII formatted string)
+    # Join each row of grid with a newline character (to make a single ASCII
+    # formatted string)
     out = "\n".join(lines)
 
     # Write generated + formatted output to text file
-    with open(out_path, "w", encoding = "utf-8") as outfile:
+    with open(out_path, "w", encoding="utf-8") as outfile:
 
         outfile.write("Lazor Problem Solution: \n\n")
         outfile.write(out + "\n")
