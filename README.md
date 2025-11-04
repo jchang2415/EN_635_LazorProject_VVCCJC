@@ -32,9 +32,11 @@ For unit testing, install the pytest module by running the following command:
 ## Usage
 To solve a puzzle using this code, download the relevant .bff file and run the function using:
   
-*python main.py <filename.bff>*  (e.g. python main.py dark_1.bff) 
+*python main.py <filename.bff>*     (e.g. python main.py dark_1.bff) 
   
-The output will be generated in a folder called "outputs" as a txt file named filename_solution.txt containing the grid with blocks placed in the solution configuration in a format similar to the .bff file input.  
+The output will be generated in a folder called "outputs" as a txt file named filename_solution.txt containing the grid with blocks placed in the solution configuration in a format similar to the .bff file input.
+
+  
 Sample Console Output:  
 <img width="1247" height="202" alt="image" src="https://github.com/user-attachments/assets/563e02ae-9bd2-448a-b756-44cebdaff40d" />
 
