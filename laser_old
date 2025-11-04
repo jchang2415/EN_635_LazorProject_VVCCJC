@@ -1,4 +1,4 @@
-# Laser Simulation #
+''' # Laser Simulation #
 '''
 Defines a function for simulating the path of a laser for a given board configuration.
 '''
@@ -159,4 +159,5 @@ def laser_path(board):
         all_paths.append(hit_path)
 
     # Return all calculated paths
-    return all_paths
+    return all_paths '''
+
