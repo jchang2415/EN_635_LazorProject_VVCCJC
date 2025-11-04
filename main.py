@@ -1,10 +1,5 @@
 # Main Block #
-
-# Placeholder file to organize file structure
-#Need, from bff/solver/output
 """
-main.py
-
 Reads a .bff file from the `sample_bff_files/` folder,
 parses the board, solves it, and writes the solution
 to the `output/` folder.
@@ -26,7 +21,14 @@ from output import write_solution
 
 
 def main():
-    #Get the .bff filename from command-line arguments
+    """
+    Runs the Lazor solver using a `.bff` filename supplied via sys.argv.
+    Parameters
+        None
+            Arguments are read directly from sys.argv
+    Returns
+        None
+    """
     if len(sys.argv) < 2:
         print("❌ Error: Missing .bff filename.")
         print("Usage: python main.py <bff_filename>")
