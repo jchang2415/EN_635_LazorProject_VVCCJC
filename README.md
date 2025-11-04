@@ -29,8 +29,10 @@ For unit testing, install the pytest module by running the following command:
 pytest install
 
 ## Usage
-To solve a puzzle using this code, download the relevant .bff file and run the function using:  
-python main.py <filename.bff>  (e.g. python main.py dark_1.bff)  
+To solve a puzzle using this code, download the relevant .bff file and run the function using:
+  
+*python main.py <filename.bff>*  (e.g. python main.py dark_1.bff) 
+  
 The output will be generated in a folder called "outputs" as a txt file named filename_solution.txt containing the grid with blocks placed in the solution configuration in a format similar to the .bff file input.  
 Sample Console Output:  
 <img width="1247" height="202" alt="image" src="https://github.com/user-attachments/assets/563e02ae-9bd2-448a-b756-44cebdaff40d" />
@@ -38,10 +40,14 @@ Sample Console Output:
 
 ## Running Unit Tests
 To run unit tests, make sure pytest is installed. If not installed, install it using:  
-pip install pytest  
+  
+*pip install pytest*  
+  
 Then run the unit tests using this command:  
-python -m pytest -v  
-
+  
+*python -m pytest -v*  
+  
+  
 Example Output:  
 <img width="1503" height="550" alt="image" src="https://github.com/user-attachments/assets/00b62028-e666-4fcc-a2f5-f25df489521b" />
 
