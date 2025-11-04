@@ -30,7 +30,7 @@ def main():
         None
     """
     if len(sys.argv) < 2:
-        print("❌ Error: Missing .bff filename.")
+        print("Error: Missing .bff filename.")
         print("Usage: python main.py <bff_filename>")
         print("Example: python main.py mad_1.bff")
         sys.exit(1)  #Exit with error code
@@ -40,7 +40,7 @@ def main():
 
     #Check that the file exists
     if not bff_path.exists():
-        print(f"❌ Error: File not found: {bff_path}")
+        print(f"Error: File not found: {bff_path}")
         print("Make sure the file is inside the 'sample_bff_files/' folder.")
         sys.exit(1) #Exit with error code
 
@@ -48,7 +48,7 @@ def main():
     try: #Parse the .bff file into a Board object
         board = parse_bff(bff_path)
     except Exception as e: #Catch parsing errors
-        print(f"❌ Failed to parse BFF file: {e}")
+        print(f"Failed to parse BFF file: {e}")
         sys.exit(1)
 
     print("Solving board...")
@@ -66,14 +66,15 @@ def main():
 
     #Write the solution or report failure
     if solution:
-        print("✔️ Valid solution found! Writing to output file...")
+        print("Valid solution found! Writing to output file...")
         write_solution(board, solution, output_file) #Write solution to file
         print(f"Solution saved to: {output_file.resolve()}")
     else: #No solution found
-        print("❌ No valid solution found for this board.")
+        print("No valid solution found for this board.")
 
     print("🏁 Program finished.")
 
 
 if __name__ == "__main__":
     main()
+
