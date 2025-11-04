@@ -20,14 +20,33 @@ BlockMap = Dict[Pos, Block] # {(cx,cy) at odd,odd -> Block instance}
 
 
 def _board_dims(board) -> Tuple[int, int]: 
-    """Return (rows, cols) from the board.grid."""
+    """
+    Returns (rows, cols) from the board.grid.
+
+    Parameters
+        Board
+
+    Returns
+        tuple[int, int]
+            (rows, cols) of `board.grid`. If grid is empty, returns (0, 0) for cols.
+    """
     rows = len(board.grid)
     cols = len(board.grid[0]) if rows else 0
     return rows, cols
 
 
 def _value_to_block(val: Union[str, Block, None]) -> Optional[Block]:
-    """Convert a grid/board value into a Block instance (or None)."""
+    """
+    Converts a grid/board value into a Block instance (or None).
+
+    Parameters
+        val : str | Block | None
+            Cell value such as 'A'/'B'/'C', an actual Block, or None.
+            
+    Returns
+        Block | None
+            Block instance if recognized, else None.
+    """
     if val is None:
         return None
     if isinstance(val, Block):
@@ -42,8 +61,14 @@ def _grid_to_blockmap(board) -> BlockMap:
     Build a block map from either:
       - board.blocks (if present), or
       - board.grid (fallback)
-
     The returned map uses cell centers at (2*c+1, 2*r+1) and concrete Block objects.
+
+    Parameters
+        Board
+
+    Returns
+        dict[Pos, Block]
+            Mapping from cell centers (2*c+1, 2*r+1) to concrete Block objects.
     """
     mp: BlockMap = {}
 
@@ -78,6 +103,18 @@ def _edge_hit(blocks: BlockMap, x: int, y: int, vx: int, vy: int) -> Tuple[Optio
     Half-grid geometry:
       - Vertical edge centers are at (even, odd). The adjacent cell center is (x+vx, y).
       - Horizontal edge centers are at (odd, even). The adjacent cell center is (x, y+vy).
+
+    Parameters
+        blocks : dict[Pos, Block]
+            Lookup of block centers at odd,odd coordinates.
+        x, y : int
+            Current half-grid position of the ray.
+        vx, vy : int
+            Current direction components (±1).
+
+    Returns
+        tuple[Block | None, bool | None]
+            (block, is_vertical_edge). If no edge hit, returns (None, None).
     """
     # Vertical edge center
     if x % 2 == 0 and y % 2 == 1:
@@ -101,16 +138,18 @@ def laser_path(board) -> List[Set[Pos]]:
     Trace each lazor from board.lasers over the half-grid, applying the
     `.interact()` logic implemented by Block classes from :mod:`blocks`.
 
-    Returns
-    
-    list[set[(int,int)]]:
-        For each lazor source in `board.lasers`, the set of all half-grid
-        coordinates visited by that lazor and any of its refracted branches.
-
     Assumptions
     
     - Lazor directions are 45° diagonals: (vx,vy) ∈ {(+1,+1), (+1,-1), (-1,+1), (-1,-1)}.
     - Board boundaries are the rectangle [0, 2*cols] × [0, 2*rows].
+
+    Parameters
+        Board 
+    
+    Returns
+        list[set[(int,int)]]:
+            For each lazor source in `board.lasers`, the set of all half-grid
+            coordinates visited by that lazor and any of its refracted branches.
     """
     rows, cols = _board_dims(board)
     if rows == 0 or cols == 0:
