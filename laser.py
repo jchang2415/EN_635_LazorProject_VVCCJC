@@ -14,12 +14,12 @@ from typing import Dict, Tuple, List, Set, Optional, Iterable, Union
 from blocks import BLOCKS, Block  # type: ignore
 
 # Type aliases
-Pos = Tuple[int, int]                 # half-grid coordinate (x, y)
-Dir = Tuple[int, int]                 # lazor direction (vx, vy) where vx, vy ∈ {-1, +1}
-BlockMap = Dict[Pos, Block]           # {(cx,cy) at odd,odd -> Block instance}
+Pos = Tuple[int, int] # half-grid coordinate (x, y)
+Dir = Tuple[int, int] # lazor direction (vx, vy) where vx, vy ∈ {-1, +1}
+BlockMap = Dict[Pos, Block] # {(cx,cy) at odd,odd -> Block instance}
 
 
-def _board_dims(board) -> Tuple[int, int]:
+def _board_dims(board) -> Tuple[int, int]: 
     """Return (rows, cols) from the board.grid."""
     rows = len(board.grid)
     cols = len(board.grid[0]) if rows else 0
@@ -102,13 +102,13 @@ def laser_path(board) -> List[Set[Pos]]:
     `.interact()` logic implemented by Block classes from :mod:`blocks`.
 
     Returns
-    -------
+    
     list[set[(int,int)]]:
         For each lazor source in `board.lasers`, the set of all half-grid
         coordinates visited by that lazor and any of its refracted branches.
 
     Assumptions
-    -----------
+    
     - Lazor directions are 45° diagonals: (vx,vy) ∈ {(+1,+1), (+1,-1), (-1,+1), (-1,-1)}.
     - Board boundaries are the rectangle [0, 2*cols] × [0, 2*rows].
     """
