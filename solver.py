@@ -16,16 +16,14 @@ def check_solution(hit_paths, target_points):
     With added optimization to make stop checking if a target is missed. (increases speed)
 
     Parameters
-    
-    hit_paths : list[set[(int,int)]]
-        List of sets containing (x, y) coordinates hit by each laser.
-    target_points : list[(int,int)]
-        Coordinates that lasers must intersect.
+        hit_paths : list[set[(int,int)]]
+            List of sets containing (x, y) coordinates hit by each laser.
+        target_points : list[(int,int)]
+            Coordinates that lasers must intersect.
 
     Returns
-    
-    bool
-        True if all target points are hit.
+        bool
+            True if all target points are hit.
     """
     all_hits = set().union(*hit_paths)
     
@@ -44,14 +42,12 @@ def generate_block_combinations(board):
     Generate a possible configurations of movable blocks, one at a time. Returns one configuration at a time. Will eventually generate all possible configurations if needed.
 
     Parameters
-  
-    board : Board
-        Board object containing grid and movable block counts.
+        board : Board
+            Board object containing grid and movable block counts.
 
     Returns
-  
-    placement: dict
-        Dictionary showing one possible placement of blocks in the grid. Maps (r, c) -> block type ('A', 'B', 'C', or None)
+        placement: dict
+            Dictionary showing one possible placement of blocks in the grid. Maps (r, c) -> block type ('A', 'B', 'C', or None)
     """
     open_slots = board.placeable_slots()
     movable_counts = board.movable_counts
@@ -101,16 +97,14 @@ def apply_blocks_to_board(base_board, placement):
     Create a new board with a given placement of movable blocks.
 
     Parameters
-    
-    base_board : Board
-        Original parsed board.
-    placement : dict
-        Mapping of (r, c) -> block type.
+        base_board : Board
+            Original parsed board.
+        placement : dict
+            Mapping of (r, c) -> block type.
 
     Returns
-    
-    Board
-        Deep copy of the board with all blocks (fixed + movable) applied.
+        Board
+            Deep copy of the board with all blocks (fixed + movable) applied.
     """
     board_copy = deepcopy(base_board)
     grid = deepcopy(board_copy.grid)
@@ -138,15 +132,13 @@ def solve(board):
     Try all possible block configurations until one solves the board.
 
     Parameters
-    
-    board : Board
-        Parsed Lazor board object.
+        board : Board
+            Parsed Lazor board object.
 
     Returns
-    
-    dict or None
-        Mapping {(r, c): block type} for the valid solution,
-        or None if no valid configuration found.
+        dict or None
+            Mapping {(r, c): block type} for the valid solution,
+            or None if no valid configuration found.
     """
     test_combo = generate_block_combinations(board)
 
@@ -158,8 +150,9 @@ def solve(board):
             print(f"✔️ Solution found after {i} tries!") #Notify user
             return placement #Return valid placement
 
-    print("❌ No valid solution found.") #Notify user
+    print("No valid solution found.") #Notify user
     return None
+
 
 
 
