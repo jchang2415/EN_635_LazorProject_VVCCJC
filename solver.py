@@ -2,28 +2,28 @@
 
 '''
 Define the core logic that attempts to find a valid configuration of movable blocks to solve a given Lazor board.
-Uses the bff.py(Board + parse_bff) & laser.py(laser_path simulation) modules.
+Use the bff.py(Board + parse_bff) & laser.py(laser_path simulation) modules.
 '''
 
 from itertools import combinations, combinations_with_replacement
 from copy import deepcopy
-from laser_test import laser_path
+from laser import laser_path
 
 
 def check_solution(hit_paths, target_points):
     """
     Check whether all target points are hit by at least one laser.
-    With added optimization to make stop checking if a target is missed. 
+    With added optimization to make stop checking if a target is missed. (increases speed)
 
     Parameters
-    ----------
+    
     hit_paths : list[set[(int,int)]]
         List of sets containing (x, y) coordinates hit by each laser.
     target_points : list[(int,int)]
         Coordinates that lasers must intersect.
 
     Returns
-    -------
+    
     bool
         True if all target points are hit.
     """
@@ -44,12 +44,12 @@ def generate_block_combinations(board):
     Generate a possible configurations of movable blocks, one at a time. Returns one configuration at a time. Will eventually generate all possible configurations if needed.
 
     Parameters
-    ----------
+  
     board : Board
         Board object containing grid and movable block counts.
 
     Returns
-    -------
+  
     placement: dict
         Dictionary showing one possible placement of blocks in the grid. Maps (r, c) -> block type ('A', 'B', 'C', or None)
     """
@@ -101,14 +101,14 @@ def apply_blocks_to_board(base_board, placement):
     Create a new board with a given placement of movable blocks.
 
     Parameters
-    ----------
+    
     base_board : Board
         Original parsed board.
     placement : dict
         Mapping of (r, c) -> block type.
 
     Returns
-    -------
+    
     Board
         Deep copy of the board with all blocks (fixed + movable) applied.
     """
@@ -138,12 +138,12 @@ def solve(board):
     Try all possible block configurations until one solves the board.
 
     Parameters
-    ----------
+    
     board : Board
         Parsed Lazor board object.
 
     Returns
-    -------
+    
     dict or None
         Mapping {(r, c): block type} for the valid solution,
         or None if no valid configuration found.
