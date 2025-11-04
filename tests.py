@@ -108,7 +108,8 @@ def test_opaque_block_stops():
 def test_parse_bff(tmp_path):
     # Create a simple mock .bff file for parsing
     bff_text = 
-"""GRID START 
+"""
+GRID START 
 o o 
 o o
 GRID STOP
