@@ -1,49 +1,33 @@
+"""
+Lazor board data and .bff parser.
+
+This module contains:
+  • Board — container for grid, movable block counts, lasers, and targets.
+  • parse_bff(path) — reads a .bff file and returns a Board.
+
+Raises:
+  ValueError on invalid tokens or malformed lines.
+"""
+
 class Board(object):
     """
-    Wrapper for a parsed .bff file.
+    Lightweight container for a Lazor puzzle parsed from a .bff file.
 
     Attributes
-    
-    grid : list[list[str]]
-    movable_counts : dict
-    lasers : list
-    targets : list
+    ----------
+    grid : list[list[str]]          # 'x','o','A','B','C'
+    movable_counts : dict           # {'A': int, 'B': int, 'C': int}
+    lasers : list[tuple[int,int,int,int]]  # (x, y, vx, vy)
+    targets : list[tuple[int,int]]  # (x, y)
 
-    LAYOUT OVERVIEW
-
-1. The .bff file format defines a Lazor puzzle using the following sections:
-   - GRID START / GRID STOP: a rectangular layout of cells
-       * 'x' = blocked / non-placeable cell
-       * 'o' = open cell where a movable block can be placed
-       * 'A', 'B', 'C' = fixed blocks of given types already placed
-   - A, B, C lines: specify the number of movable blocks of each type
-   - L lines: define lasers with their starting position (x, y) and direction (vx, vy)
-   - P lines: define target coordinates that lasers must hit to solve the puzzle
-
-2. The parse_bff(path) function:
-   - Reads and validates a .bff file
-   - Extracts grid layout, movable block counts, laser positions, and target points
-   - Returns a Board object that encapsulates all puzzle data
-
-3. The Board class:
-   - Stores all parsed information
-   - Provides helper methods:
-        • size() → returns grid dimensions
-        • fixed_blocks() → returns all fixed block coordinates
-        • placeable_slots() → returns all coordinates where movable blocks can go
-
-USAGE
-
-The Board object produced by parse_bff() is the primary input
-to the solver.py and laser.py modules, which simulate laser movement
-and search for valid block placements that satisfy all targets.
+    Typical usage: produced by parse_bff(path) and passed to solver/laser code.
     """
 
     def __init__(self, grid, movable_counts, lasers, targets): # initialize Board
         self.grid = grid # 2D list of grid cells
         self.movable_counts = movable_counts # dict of movable block counts
-        self.lasers = lasers # list of laser (x, y, vx, vy)
-        self.targets = targets # list of target (x, y)
+        self.lasers = lasers # list of lasers (x, y, vx, vy)
+        self.targets = targets # list of targets (x, y)
 
     def size(self): # return board dimensions
         """
@@ -67,14 +51,21 @@ and search for valid block placements that satisfy all targets.
         Return a list of (r,c) indices where movable blocks can be placed ('o' cells).
         """
         slots = []
-        for r, row in enumerate(self.grid): # iterate through rows
-            for c, cell in enumerate(row): # iterate through cells
+        for r, row in enumerate(self.grid):
+            for c, cell in enumerate(row):
                 if cell == 'o': # if cell is empty
                     slots.append((r, c)) # add to slots list
         return slots # return list of slots
 
 def parse_bff(path):
-    """Parse a .bff file from disk and return a Board object"""
+    """
+    Parses a .bff file from disk and returns a Board object
+
+    Parameters
+        path: str
+    Returns
+        Board: Board(grid, movable_counts, lasers, targets)
+    """
     with open(path, 'r', encoding='utf-8') as bff_file:
         lines = [ln.strip() for ln in bff_file]
 
@@ -85,7 +76,16 @@ def parse_bff(path):
     in_grid = False # flag for grid section
     i = 0 # line index
 
-    def is_comment_or_blank(string): # check if line is comment or blank
+    def is_comment_or_blank(string): 
+        """
+        Checks if line is comment or blank
+
+        Parameters
+            string: str
+
+        Returns
+            Boolean
+        """
         if len(string) == 0:
             return True
         if string[0] == '#':
