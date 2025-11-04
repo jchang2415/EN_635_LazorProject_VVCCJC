@@ -72,9 +72,10 @@ def main():
     else: #No solution found
         print("No valid solution found for this board.")
 
-    print("🏁 Program finished.")
+    print("Program finished.")
 
 
 if __name__ == "__main__":
     main()
+
 
