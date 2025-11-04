@@ -105,10 +105,14 @@ def parse_bff(path):
                     break
                 if is_comment_or_blank(row): # skip comments and blank lines
                     continue
+                
+                if '#' in row:
+                  row = row.split('#')[0].strip()
+                  
                 cells = row.split() # split row into cells
                 for c in cells:
                     if c not in ('o', 'x', 'A', 'B', 'C'): # validate cell
-                        raise ValueError("Invalid grid cell: %r" % c) # raise error for invalid cell
+                        raise ValueError("Invalid grid cell: {c!r}") # raise error for invalid cell
                 grid.append(cells)
             continue
 
